@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Профиль shelton</title>
+    <style>
+        body {
+            background-color: #000;
+            color: #fff;
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            position: relative;
+            overflow: hidden;
+            flex-direction: column;
+        }
+        .card-container {
+            background: #000;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            width: 320px;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.05);
+            position: relative;
+            margin-bottom: 20px;
+        }
+        .avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: 1px solid rgba(255, 255, 255, 0.337);
+            box-shadow: 0 0 20px rgba(78, 105, 241, 0.699);
+        }
+        .status {
+            color: #fff;
+            margin: 10px 0;
+        }
+        .kanji {
+            position: absolute;
+            font-size: 40px;
+            color: rgba(255, 255, 255, 0.2);
+            opacity: 0;
+        }
+        @keyframes fadeInOut {
+            0% { opacity: 0; transform: translateY(10px); }
+            50% { opacity: 1; transform: translateY(0); }
+            100% { opacity: 0; transform: translateY(-10px); }
+        }
+        .player {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 320px;
+        }
+        .track-line {
+            width: 100%;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.2);
+            position: relative;
+            margin-bottom: 10px;
+        }
+        .track-circle {
+            width: 10px;
+            height: 10px;
+            background: white;
+            border-radius: 50%;
+            position: absolute;
+            top: -3px;
+            left: 0;
+        }
+        .controls {
+            display: flex;
+            justify-content: space-around;
+            width: 100px;
+        }
+        .btn {
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="card-container">
+        <img src="https://cdn.discordapp.com/attachments/1179137892434579498/1337085964777951292/2025-02-06_18.41.50.jpg?ex=67a629d7&is=67a4d857&hm=f5da41381446b4680088eaf6f470c4d08bae24cf80403950fda5b90115fc138e&" alt="Аватар" class="avatar">
+        <h2>shelton'☁️</h2>
+        <p class="status">𝓫𝓮𝓽𝓽𝓮𝓻 𝓱𝓪𝓿𝓮 𝓪 𝓼𝓹𝓸𝓸𝓷 𝓲𝓷 𝓾𝓻 𝓱𝓪𝓷𝓭 𝓽𝓱𝓪𝓷 𝓪 𝓼𝓹𝓸𝓸𝓷 𝓲𝓷 𝓾𝓻 𝓪𝓼𝓼</p>
+    </div>
+    <script>
+        function createKanji(container) {
+            const kanjiList = ['地', '形', '風', '影', '光', '夢', '夜', '星', '魂', '炎'];
+            const positions = [];
+            
+            for (let i = 0; i < 3; i++) {
+                let x, y, overlap;
+                do {
+                    overlap = false;
+                    x = Math.random() * (container.clientWidth - 50);
+                    y = Math.random() * (container.clientHeight - 50);
+                    for (const pos of positions) {
+                        if (Math.abs(pos.x - x) < 50 && Math.abs(pos.y - y) < 50) {
+                            overlap = true;
+                            break;
+                        }
+                    }
+                } while (overlap);
+                
+                positions.push({ x, y });
+                const kanji = document.createElement('div');
+                kanji.className = 'kanji';
+                kanji.textContent = kanjiList[Math.floor(Math.random() * kanjiList.length)];
+                container.appendChild(kanji);
+                kanji.style.animation = `fadeInOut 4s infinite`;
+                kanji.style.left = `${x}px`;
+                kanji.style.top = `${y}px`;
+                kanji.style.position = 'absolute';
+                
+                setTimeout(() => {
+                    kanji.remove();
+                }, 4000);
+            }
+        }
+        setInterval(() => createKanji(document.body), 2000);
+    </script>
+    
+    <div class="player">
+        <div class="track-line">
+            <div class="track-circle" id="track-circle"></div>
+        </div>
+        <div class="controls">
+            <svg class="btn" id="rewind" viewBox="0 0 24 24"><polygon fill="white" points="12,12 22,6 22,18"/><polygon fill="white" points="2,12 12,6 12,18"/></svg>
+            <svg class="btn" id="play-pause" viewBox="0 0 24 24"><polygon fill="white" points="6,4 20,12 6,20"/></svg>
+            <svg class="btn" id="forward" viewBox="0 0 24 24"><polygon fill="white" points="2,6 12,12 2,18"/><polygon fill="white" points="12,6 22,12 12,18"/></svg>
+        </div>
+    </div>
+    
+    <script>
+    let playing = false;
+    let progress = 0;
+    let interval;
+    const trackCircle = document.getElementById('track-circle');
+    const playPauseBtn = document.getElementById('play-pause');
+
+    function updateTrack() {
+        progress += 1;
+        if (progress > 100) progress = 0;
+        trackCircle.style.left = progress + '%';
+    }
+
+    playPauseBtn.addEventListener('click', () => {
+        if (playing) {
+            clearInterval(interval);
+            playPauseBtn.innerHTML = '<polygon fill="white" points="6,4 20,12 6,20"/>';
+        } else {
+            interval = setInterval(updateTrack, 500);
+            playPauseBtn.innerHTML = '<rect x="2" y="4" width="4" height="16" fill="white"/><rect x="7" y="4" width="4" height="16" fill="white"/>';
+        }
+        playing = !playing;
+    });
+    </script>
+</body>
+</html>
